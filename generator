@@ -1,0 +1,60 @@
+#!/bin/bash
+# Author: Abenx <aben@abenx.com>
+set -e
+
+DIRNAME=$(dirname $0)
+source ${DIRNAME}/scripts/easyopt.sh
+
+RES_PATH=./resources/oc
+OUTPUT_PATH=./output
+TEMPLATENAME='MVPG'
+DATE_TEMPLATENAME='{CREATED_AT}'
+
+function make() {
+    copyfiles $1
+    replacefilenames $1
+    replacefiles $1
+    open $OUTPUT_PATH
+}
+
+function copyfiles() {
+    if [ -d $OUTPUT_PATH ]; then
+        rm -rf $OUTPUT_PATH/*
+    else
+        mkdir $OUTPUT_PATH
+    fi
+    cp -R $RES_PATH $OUTPUT_PATH/$1
+}
+
+function replacefilenames() {
+    find $OUTPUT_PATH/$1 -name "*"$TEMPLATENAME"*" -type f | awk -F $TEMPLATENAME '{printf("mv %s %s \n", $0, $1"'$1'"$2)}' | bash
+}
+
+function replacefiles() {
+    find $OUTPUT_PATH/$1 -name "*"$1"*" -type f | xargs sed -i "" "s/$TEMPLATENAME/$1/g"
+    find $OUTPUT_PATH/$1 -name "*"$1"*" -type f | xargs sed -i "" "s/$DATE_TEMPLATENAME/$(date +%Y-%m-%d)/g"
+}
+
+function help() {
+    cat <<-EOF
+MVP Generator.
+
+Usage:
+    $0 [options]
+
+Options:
+    -n module_name          Module name
+    -h                      Show this help message and exit
+
+EOF
+}
+
+if [ $# == 0 ]; then
+    help && exit 0
+fi
+
+easyopt_add "h"  'help && exit 0'
+easyopt_add "n:" 'MODULE_NAME=$OPTARG'
+easyopt_parse_opts "$@"
+
+make $MODULE_NAME
