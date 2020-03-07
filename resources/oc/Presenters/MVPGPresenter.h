@@ -17,6 +17,7 @@
 @property (nonatomic, weak) id<MVPGPresenterDelegate> delegate;
 
 - (void)bindMVPGView:(MVPGView *)view;
+- (void)unbindView;
 
 @end
 

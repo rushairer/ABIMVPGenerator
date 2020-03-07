@@ -44,6 +44,11 @@
     _view.delegate = self;
 }
 
+- (void)unbindView {
+    [_view removeFromSuperview];
+    _view = nil;
+}
+
 #pragma mark - private methods
 
 #pragma mark - getters and setters
